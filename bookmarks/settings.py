@@ -11,6 +11,15 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+
+import dj_database_url
+
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
+
+
+
+
 from django.core.urlresolvers import reverse_lazy
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -24,10 +33,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '4xv!eff+-ok(=)8lxv8sk+lh2pcmc$h+!!7f-*a_x*+_edz$!#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
+DEBUG = False
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass
 
 # Application definition
 
@@ -77,10 +92,15 @@ WSGI_APPLICATION = 'bookmarks.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'd4ta52ppum8qgk',
+        'USER': 'wwhbmbhwoefdqk',
+        'PASSWORD': '08af19624cf4b3ac7c0002bb8a6008f0ae4bee110fe29735ab931c8f073e1c3d',
+        'HOST': 'ec2-54-235-120-27.compute-1.amazonaws.com',
+        'PORT': '5432',
     }
 }
+
 
 
 # Password validation
@@ -117,9 +137,18 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.10/howto/static-files/
+# https://docs.djangoproject.com/en/1.9/howto/static-files/
 
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 STATIC_URL = '/static/'
+
+# Extra places for collectstatic to find static files.
+STATICFILES_DIRS = (
+    os.path.join(PROJECT_ROOT, 'static'),
+)
+
 
 
 LOGIN_REDIRECT_URL = reverse_lazy('dashboard')
@@ -128,3 +157,13 @@ LOGOUT_URL = reverse_lazy('logout')
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+# Simplified static file serving.
+# https://warehouse.python.org/project/whitenoise/
+
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+
+
+
+
